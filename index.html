@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS — Private Download</title>
+<!-- No meta description, no robots index — keeps this page hidden -->
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #000;
+    color: #fff;
+    font-family: 'Consolas', 'Courier New', monospace;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* Animated grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(60,170,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(60,170,255,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    animation: gridMove 20s linear infinite;
+    pointer-events: none;
+  }
+
+  @keyframes gridMove {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(40px); }
+  }
+
+  .card {
+    background: rgba(6,6,6,0.95);
+    border: 1px solid rgba(60,170,255,0.3);
+    border-radius: 20px;
+    padding: 60px 56px;
+    max-width: 540px;
+    width: 90%;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 0 80px rgba(60,170,255,0.08),
+                inset 0 1px 0 rgba(60,170,255,0.1);
+  }
+
+  /* Orb */
+  .orb-wrap {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 32px;
+  }
+
+  .orb {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%,
+      rgba(100,200,255,0.3) 0%,
+      rgba(60,170,255,0.15) 40%,
+      rgba(0,80,160,0.1) 70%,
+      transparent 100%);
+    border: 1px solid rgba(60,170,255,0.4);
+    animation: orbPulse 3s ease-in-out infinite;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+  }
+
+  .orb-ring {
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    border: 1px solid rgba(60,170,255,0.15);
+    animation: orbRing 3s ease-in-out infinite;
+  }
+
+  .orb-ring-2 {
+    position: absolute;
+    inset: -18px;
+    border-radius: 50%;
+    border: 1px solid rgba(60,170,255,0.07);
+    animation: orbRing 3s ease-in-out infinite 0.5s;
+  }
+
+  @keyframes orbPulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(60,170,255,0.3), 0 0 60px rgba(60,170,255,0.1); }
+    50% { box-shadow: 0 0 40px rgba(60,170,255,0.5), 0 0 100px rgba(60,170,255,0.2); }
+  }
+
+  @keyframes orbRing {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.03); }
+  }
+
+  h1 {
+    font-size: 38px;
+    font-weight: 700;
+    letter-spacing: 12px;
+    color: #3CAAFF;
+    margin-bottom: 6px;
+    text-shadow: 0 0 30px rgba(60,170,255,0.5);
+  }
+
+  .subtitle {
+    font-size: 11px;
+    color: #336688;
+    letter-spacing: 2px;
+    margin-bottom: 40px;
+    text-transform: uppercase;
+  }
+
+  .version-badge {
+    display: inline-block;
+    background: rgba(60,170,255,0.08);
+    border: 1px solid rgba(60,170,255,0.2);
+    color: #3CAAFF;
+    font-size: 10px;
+    padding: 3px 12px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+    margin-bottom: 36px;
+  }
+
+  .features {
+    text-align: left;
+    margin-bottom: 40px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .feature {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #7799aa;
+  }
+
+  .feature-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #3CAAFF;
+    flex-shrink: 0;
+    box-shadow: 0 0 6px #3CAAFF;
+  }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(60,170,255,0.2), transparent);
+    margin: 0 -20px 36px;
+  }
+
+  /* Download button */
+  .dl-btn {
+    display: block;
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, #0a1f3a 0%, #0d2a4a 100%);
+    border: 1px solid rgba(60,170,255,0.5);
+    border-radius: 12px;
+    color: #3CAAFF;
+    font-family: 'Consolas', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+
+  .dl-btn::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -60%;
+    width: 40%;
+    height: 200%;
+    background: linear-gradient(90deg, transparent, rgba(60,170,255,0.1), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.5s;
+  }
+
+  .dl-btn:hover::before { left: 120%; }
+
+  .dl-btn:hover {
+    background: linear-gradient(135deg, #0d2a4a 0%, #1a3a5c 100%);
+    border-color: #3CAAFF;
+    box-shadow: 0 0 30px rgba(60,170,255,0.2);
+    transform: translateY(-1px);
+  }
+
+  .dl-btn:active { transform: translateY(0); }
+
+  .dl-btn.downloading {
+    pointer-events: none;
+    opacity: 0.7;
+  }
+
+  .dl-size {
+    font-size: 11px;
+    color: #446688;
+    margin-bottom: 32px;
+    letter-spacing: 1px;
+  }
+
+  .instructions {
+    background: rgba(60,170,255,0.03);
+    border: 1px solid rgba(60,170,255,0.1);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: left;
+    margin-bottom: 24px;
+  }
+
+  .instructions h3 {
+    color: #3CAAFF;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .step {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: #7799aa;
+    align-items: flex-start;
+  }
+
+  .step-num {
+    color: #3CAAFF;
+    font-weight: 700;
+    flex-shrink: 0;
+    width: 16px;
+  }
+
+  .footer {
+    font-size: 10px;
+    color: #222;
+    letter-spacing: 1px;
+  }
+
+  /* Progress bar shown during download */
+  .progress-wrap {
+    display: none;
+    margin-bottom: 16px;
+  }
+
+  .progress-bar {
+    height: 3px;
+    background: rgba(60,170,255,0.1);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #0d2a45, #3CAAFF);
+    border-radius: 3px;
+    width: 0%;
+    animation: progressAnim 2.5s ease-in-out infinite;
+  }
+
+  @keyframes progressAnim {
+    0% { width: 0%; margin-left: 0; }
+    50% { width: 70%; margin-left: 0; }
+    100% { width: 0%; margin-left: 100%; }
+  }
+
+  .progress-text {
+    font-size: 11px;
+    color: #3CAAFF;
+    margin-top: 8px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+
+  <!-- Orb -->
+  <div class="orb-wrap">
+    <div class="orb-ring-2"></div>
+    <div class="orb-ring"></div>
+    <div class="orb">⬡</div>
+  </div>
+
+  <!-- Title -->
+  <h1>JARVIS</h1>
+  <p class="subtitle">Just A Rather Very Intelligent System</p>
+  <span class="version-badge">VERSION 1.0 · PRIVATE BUILD</span>
+
+  <!-- Features -->
+  <div class="features">
+    <div class="feature"><div class="feature-dot"></div>Voice commands</div>
+    <div class="feature"><div class="feature-dot"></div>Blue orb overlay</div>
+    <div class="feature"><div class="feature-dot"></div>Email & Calendar</div>
+    <div class="feature"><div class="feature-dot"></div>Browser control</div>
+    <div class="feature"><div class="feature-dot"></div>AI conversation</div>
+    <div class="feature"><div class="feature-dot"></div>App launcher</div>
+    <div class="feature"><div class="feature-dot"></div>Games & timers</div>
+    <div class="feature"><div class="feature-dot"></div>Medal clips</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Download -->
+  <a id="dlBtn" class="dl-btn" href="#" onclick="startDownload(event)">
+    ⬇ &nbsp; DOWNLOAD JARVIS
+  </a>
+  <p class="dl-size" id="dlSize">JARVIS_Portable.zip · ~2.1 GB · No installation required</p>
+
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-bar"><div class="progress-fill"></div></div>
+    <p class="progress-text" id="progressText">Starting download...</p>
+  </div>
+
+  <!-- Instructions -->
+  <div class="instructions">
+    <h3>After downloading</h3>
+    <div class="step"><span class="step-num">1</span><span>Extract the zip anywhere on your PC</span></div>
+    <div class="step"><span class="step-num">2</span><span>Open the JARVIS folder</span></div>
+    <div class="step"><span class="step-num">3</span><span>Edit <code style="color:#3CAAFF">.env</code> — add your Gmail app password</span></div>
+    <div class="step"><span class="step-num">4</span><span>Double-click <code style="color:#3CAAFF">LAUNCH JARVIS.bat</code></span></div>
+    <div class="step"><span class="step-num">5</span><span>Say <code style="color:#3CAAFF">"Hey Jarvis"</code> to start</span></div>
+  </div>
+
+  <p class="footer">PRIVATE · DO NOT SHARE THIS URL</p>
+
+</div>
+
+<script>
+  // ── Replace this URL with your actual GitHub Release download link ──
+  // After uploading JARVIS_Portable.zip to a GitHub Release, paste
+  // the direct download URL here.
+  const DOWNLOAD_URL = "https://github.com/YOURUSERNAME/YOURREPO/releases/download/v1.0/JARVIS_Portable.zip";
+  const FILE_SIZE = "2.1 GB";
+
+  function startDownload(e) {
+    e.preventDefault();
+    const btn = document.getElementById('dlBtn');
+    const progress = document.getElementById('progressWrap');
+    const progressText = document.getElementById('progressText');
+
+    btn.classList.add('downloading');
+    btn.textContent = '⟳  Preparing download...';
+    progress.style.display = 'block';
+
+    setTimeout(() => {
+      progressText.textContent = 'Download started — check your downloads folder';
+      btn.textContent = '✓  Download started';
+      // Trigger actual browser download
+      window.location.href = DOWNLOAD_URL;
+    }, 800);
+  }
+</script>
+
+</body>
+</html>
